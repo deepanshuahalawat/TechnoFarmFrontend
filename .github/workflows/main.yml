@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      # Step 1: Checkout React code
+      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
         
@@ -20,16 +20,33 @@ jobs:
         with:
           node-version: '20'
           
-      # Step 3: Install dependencies and build React app
-      - name: Install and build React app
+      # Step 3: Find React app location
+      - name: Find React app
+        id: find-react
         run: |
+          # Check common locations for React apps
+          if [ -d "frontend" ]; then
+            echo "Found React app in frontend/"
+            echo "REACT_DIR=frontend" >> $GITHUB_OUTPUT
+          elif [ -f "package.json" ]; then
+            echo "Found React app in root"
+            echo "REACT_DIR=." >> $GITHUB_OUTPUT
+          else
+            echo "Could not find React app directory"
+            exit 1
+          fi
+          
+      # Step 4: Install and build React app
+      - name: Install and build React app
+        working-directory: ${{ steps.find-react.outputs.REACT_DIR }}
+        run: |
+          echo "Current directory: $(pwd)"
           npm ci --legacy-peer-deps
           npm run build
+          echo "Build directory created at: $(pwd)/build"
+          ls -la build/
           
-      # Verify build directory exists
-      - name: List files
-        run: ls -la build/
-          
+      # Step 5: Deploy to EC2
       - name: Deploy React build to EC2
         env:
           HOST: ${{ secrets.EC2_HOST }}
@@ -40,13 +57,13 @@ jobs:
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
           
-          # Create target directory on EC2 if it doesn't exist
+          # Create target directory on EC2
           ssh -i private_key.pem -o StrictHostKeyChecking=no $USER@$HOST "mkdir -p $REACT_BUILD_DIR"
           
-          # Copy new build (using exact path)
-          scp -i private_key.pem -o StrictHostKeyChecking=no -r $GITHUB_WORKSPACE/build/* $USER@$HOST:$REACT_BUILD_DIR
-
-          # Restart Spring Boot app (optional)
+          # Copy build files (using absolute path)
+          scp -i private_key.pem -o StrictHostKeyChecking=no -r ${{ steps.find-react.outputs.REACT_DIR }}/build/* $USER@$HOST:$REACT_BUILD_DIR
+          
+          # Restart Spring Boot
           ssh -i private_key.pem -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
           if [ -f /home/ubuntu/PriyanshuBranchGithub/app.pid ]; then
             sudo kill -9 $(cat /home/ubuntu/PriyanshuBranchGithub/app.pid) || true
