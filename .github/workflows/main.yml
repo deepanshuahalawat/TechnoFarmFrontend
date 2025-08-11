@@ -31,9 +31,11 @@ jobs:
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
           PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY}}
+          
           REACT_BUILD_DIR: "/home/ubuntu/react-build"
         run: |
           echo "$PRIVATE_KEY" > private_key.pem
+          echo "$PRIVATE_KEY"
           chmod 600 private_key.pem
       
           
