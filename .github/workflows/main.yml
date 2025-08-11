@@ -1,0 +1,54 @@
+name: CI/CD for React Frontend - priyanshuBranch
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy-react:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Step 1: Checkout React code
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'  # Your React project's Node version
+          
+      # Step 3: Install dependencies and build React app
+      - name: Install and build React app
+        run: |
+          npm ci --legacy-peer-deps
+          npm run build
+          
+      # Step 4: Deploy built files to EC2
+      - name: Deploy React build to EC2
+        env:
+          HOST: ${{ secrets.EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }}
+          PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+          REACT_BUILD_DIR: "/home/ubuntu/react-build"
+        run: |
+          echo "$PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          
+          # Remove old build
+          ssh -i private_key.pem -o StrictHostKeyChecking=no $USER@$HOST "rm -rf $REACT_BUILD_DIR/*"
+          
+          # Copy new build
+          scp -i private_key.pem -o StrictHostKeyChecking=no -r build/* $USER@$HOST:$REACT_BUILD_DIR
+          
+          # Restart Spring Boot app (optional, only if needed for hot reload)
+          # ssh -i private_key.pem -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+          # if [ -f /home/ubuntu/PriyanshuBranchGithub/app.pid ]; then
+          #   sudo kill -9 $(cat /home/ubuntu/PriyanshuBranchGithub/app.pid) || true
+          #   rm /home/ubuntu/PriyanshuBranchGithub/app.pid
+          # fi
+          # sudo nohup java -jar /home/ubuntu/PriyanshuBranchGithub/ProductionManagement/target/ProductionManagement-0.0.1-SNAPSHOT.jar > /home/ubuntu/PriyanshuBranchGithub/app.log 2>&1 &
+          # echo $! > /home/ubuntu/PriyanshuBranchGithub/app.pid
+          EOF
