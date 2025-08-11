@@ -5,6 +5,6 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   build: {
-    outDir: 'C:/Users/broya/OneDrive/Documents/technofarm/Backend/src/main/resources/static',
+    outDir: './build',
   },
 })
