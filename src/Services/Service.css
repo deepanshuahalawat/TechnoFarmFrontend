@@ -1,0 +1,90 @@
+/* src/components/ServicePage.css */
+
+.service-page {
+    font-family: 'Arial', sans-serif;
+    padding: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+    
+  }
+  
+  .service-header {
+    text-align: center;
+    margin-bottom: 30px;
+    
+  }
+  
+  .service-header h1 {
+    font-size: 2.5em;
+    color: #1f2937; /* Tailwind's gray-800 */
+  }
+  
+  .service-header p {
+    font-size: 1.2em;
+    color: #4b5563; /* Tailwind's gray-600 */
+  }
+  
+  .service-details {
+    margin: 20px 0;
+  }
+  
+  .service-details h2 {
+    font-size: 2em;
+    color: #1f2937;
+    margin-bottom: 20px;
+  }
+  
+  .service-card {
+    background-color: #fff;
+    border: 1px solid #e5e7eb; /* Tailwind's gray-200 */
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .service-card h3 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+  }
+  
+  .service-card p {
+    font-size: 1em;
+    line-height: 1.6;
+    color: #6b7280; /* Tailwind's gray-500 */
+  }
+  
+  .contact-section {
+    text-align: center;
+    margin-top: 40px;
+  }
+  
+  .contact-section p {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    color: #1f2937;
+  }
+  
+  .whatsapp-link {
+    display: inline-flex;
+    align-items: center;
+    font-size: 1.2em;
+    color: #25D366; /* WhatsApp green */
+    text-decoration: none;
+    border: 1px solid #25D366;
+    padding: 10px 20px;
+    border-radius: 25px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .whatsapp-link:hover {
+    background-color: #25D366;
+    color: #fff;
+  }
+  
+  .whatsapp-icon {
+    margin-right: 10px;
+    width: 24px;
+    height: 24px;
+  }
+  

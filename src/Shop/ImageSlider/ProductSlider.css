@@ -1,0 +1,30 @@
+/* src/components/ProductSlider.css */
+
+.slider-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.slider-image {
+  /* width: 100%; */
+  /* height: auto; */
+  padding-left: 130px;
+  max-height: 300px; /* Adjust as needed */
+  object-fit: cover;
+}
+
+.slick-arrow {
+  font-size: 2rem;
+  color: #120a0a;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.slick-prev {
+  left: 10px;
+}
+
+.slick-next {
+  right: 10px;
+}

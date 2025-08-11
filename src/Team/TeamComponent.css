@@ -1,0 +1,257 @@
+/* Base Styles */
+.team-section {
+  background-color: #f9fafb;
+  padding: 80px 0;
+  font-family: 'Nunito', sans-serif;
+}
+
+.team-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Header Styles */
+.team-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.team-heading {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 1rem;
+  position: relative;
+  display: inline-block;
+}
+
+.team-heading:after {
+  content: '';
+  position: absolute;
+  width: 60px;
+  height: 4px;
+  background: #3b82f6;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+.team-subheading {
+  font-size: 1.1rem;
+  color: #4b5563;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Slider Wrapper */
+.team-slider-wrapper {
+  position: relative;
+  padding: 0 40px;
+}
+
+/* Team Member Card */
+.team-member-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+}
+
+.team-member-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.member-image-container {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  overflow: hidden;
+}
+
+.member-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.team-member-card:hover .member-image {
+  transform: scale(1.05);
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent 50%);
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.team-member-card:hover .image-overlay {
+  opacity: 0.9;
+}
+
+.member-info {
+  padding: 25px;
+  text-align: center;
+}
+
+.member-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.member-position {
+  color: #3b82f6;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.member-bio {
+  color: #4b5563;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Swiper Custom Styles */
+.team-swiper {
+  padding: 20px 0;
+}
+
+.team-swiper-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.team-swiper-pagination {
+  position: static;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.team-swiper-pagination .swiper-pagination-bullet {
+  width: 10px;
+  height: 10px;
+  background: #d1d5db;
+  opacity: 1;
+  margin: 0 !important;
+  transition: all 0.3s ease;
+}
+
+.team-swiper-pagination .swiper-pagination-bullet-active {
+  background: #3b82f6;
+  width: 30px;
+  border-radius: 5px;
+}
+
+.team-swiper-navigation {
+  display: flex;
+  gap: 15px;
+}
+
+.team-swiper-button-prev,
+.team-swiper-button-next {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #4b5563;
+  transition: all 0.3s ease;
+}
+
+.team-swiper-button-prev:hover,
+.team-swiper-button-next:hover {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.team-swiper-button-prev.swiper-button-disabled,
+.team-swiper-button-next.swiper-button-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .member-image-container {
+    height: 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  .team-section {
+    padding: 60px 0;
+  }
+  
+  .team-heading {
+    font-size: 2rem;
+  }
+  
+  .team-header {
+    margin-bottom: 40px;
+  }
+  
+  .team-slider-wrapper {
+    padding: 0 20px;
+  }
+  
+  .member-image-container {
+    height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .team-section {
+    padding: 40px 0;
+  }
+  
+  .team-heading {
+    font-size: 1.8rem;
+  }
+  
+  .team-subheading {
+    font-size: 1rem;
+  }
+  
+  .team-slider-wrapper {
+    padding: 0 10px;
+  }
+  
+  .team-swiper-controls {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .member-name {
+    font-size: 1.2rem;
+  }
+  
+  .member-position {
+    font-size: 0.9rem;
+  }
+  
+  .member-bio {
+    font-size: 0.85rem;
+  }
+}
