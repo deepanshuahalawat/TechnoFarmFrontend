@@ -26,24 +26,28 @@ jobs:
           npm ci --legacy-peer-deps
           npm run build
           
-      # Step 4: Deploy built files to EC2
+      # Step 4: Create private key file from base64 secret
+      - name: Create private key file
+        run: |
+          echo "${EC2_PRIVATE_KEY_BASE64}" | base64 --decode > private_key.pem
+          chmod 600 private_key.pem
+        env:
+          EC2_PRIVATE_KEY_BASE64: ${{ secrets.EC2_PRIVATE_KEY_BASE64 }}
+            
+      # Step 5: Deploy React build to EC2
       - name: Deploy React build to EC2
         env:
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
-          PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
           REACT_BUILD_DIR: "/home/ubuntu/react-build"
         run: |
-          echo "$PRIVATE_KEY" > private_key.pem
-          chmod 600 private_key.pem
-          
           # Remove old build
           ssh -i private_key.pem -o StrictHostKeyChecking=no $USER@$HOST "rm -rf $REACT_BUILD_DIR/*"
           
           # Copy new build
           scp -i private_key.pem -o StrictHostKeyChecking=no -r build/* $USER@$HOST:$REACT_BUILD_DIR
           
-          # Restart Spring Boot app (optional, only if needed for hot reload)
+          # Restart Spring Boot app (optional)
           # ssh -i private_key.pem -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
           # if [ -f /home/ubuntu/PriyanshuBranchGithub/app.pid ]; then
           #   sudo kill -9 $(cat /home/ubuntu/PriyanshuBranchGithub/app.pid) || true
@@ -51,4 +55,4 @@ jobs:
           # fi
           # sudo nohup java -jar /home/ubuntu/PriyanshuBranchGithub/ProductionManagement/target/ProductionManagement-0.0.1-SNAPSHOT.jar > /home/ubuntu/PriyanshuBranchGithub/app.log 2>&1 &
           # echo $! > /home/ubuntu/PriyanshuBranchGithub/app.pid
-          EOF
+          # EOF
