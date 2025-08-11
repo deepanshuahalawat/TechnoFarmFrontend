@@ -30,14 +30,12 @@ jobs:
         env:
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
-          PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+          PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY}}
           REACT_BUILD_DIR: "/home/ubuntu/react-build"
         run: |
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-          
-          # Remove old build
-          ssh -i private_key.pem -o StrictHostKeyChecking=no $USER@$HOST "rm -rf $REACT_BUILD_DIR/*"
+      
           
           # Copy new build
           scp -i private_key.pem -o StrictHostKeyChecking=no -r build/* $USER@$HOST:$REACT_BUILD_DIR
