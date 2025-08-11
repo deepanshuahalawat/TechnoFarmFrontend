@@ -1,4 +1,4 @@
-name: CI/CD for React Frontend - priyanshuBranch
+name: CI/CD for React Frontend
 
 on:
   push:
@@ -20,55 +20,48 @@ jobs:
         with:
           node-version: '20'
           
-      # Step 3: Find React app location
-      - name: Find React app
-        id: find-react
+      # Step 3: Install and build React app
+      - name: Install and build
         run: |
-          # Check common locations for React apps
-          if [ -d "frontend" ]; then
-            echo "Found React app in frontend/"
-            echo "REACT_DIR=frontend" >> $GITHUB_OUTPUT
-          elif [ -f "package.json" ]; then
-            echo "Found React app in root"
-            echo "REACT_DIR=." >> $GITHUB_OUTPUT
-          else
-            echo "Could not find React app directory"
-            exit 1
-          fi
-          
-      # Step 4: Install and build React app
-      - name: Install and build React app
-        working-directory: ${{ steps.find-react.outputs.REACT_DIR }}
-        run: |
-          echo "Current directory: $(pwd)"
           npm ci --legacy-peer-deps
           npm run build
-          echo "Build directory created at: $(pwd)/build"
-          ls -la build/
           
-      # Step 5: Deploy to EC2
-      - name: Deploy React build to EC2
+      # Step 4: Deploy to EC2
+      - name: Deploy to EC2
         env:
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
           PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
-          REACT_BUILD_DIR: "/home/ubuntu/react-build"
+          SPRING_BOOT_STATIC_DIR: "/home/ubuntu/react-build"
         run: |
-          echo "$PRIVATE_KEY" > private_key.pem
-          chmod 600 private_key.pem
+          # Create SSH directory and set permissions
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
           
-          # Create target directory on EC2
-          ssh -i private_key.pem -o StrictHostKeyChecking=no $USER@$HOST "mkdir -p $REACT_BUILD_DIR"
+          # Write private key with proper formatting
+          echo "$PRIVATE_KEY" > ~/.ssh/private_key.pem
+          chmod 600 ~/.ssh/private_key.pem
           
-          # Copy build files (using absolute path)
-          scp -i private_key.pem -o StrictHostKeyChecking=no -r ${{ steps.find-react.outputs.REACT_DIR }}/build/* $USER@$HOST:$REACT_BUILD_DIR
+          # Add EC2 host to known hosts
+          ssh-keyscan $HOST >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          
+          # Test SSH connection first
+          ssh -v -i ~/.ssh/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST "echo 'SSH connection successful'"
+          
+          # Create target directory if needed
+          ssh -i ~/.ssh/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST "mkdir -p $SPRING_BOOT_STATIC_DIR"
+          
+          # Copy build files
+          scp -i ~/.ssh/private_key.pem -o StrictHostKeyChecking=no -r build/* $USER@$HOST:$SPRING_BOOT_STATIC_DIR
           
           # Restart Spring Boot
-          ssh -i private_key.pem -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
-          if [ -f /home/ubuntu/PriyanshuBranchGithub/app.pid ]; then
-            sudo kill -9 $(cat /home/ubuntu/PriyanshuBranchGithub/app.pid) || true
-            rm /home/ubuntu/PriyanshuBranchGithub/app.pid
+          ssh -i ~/.ssh/private_key.pem -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+          if [ -f /home/ubuntu/app.pid ]; then
+            sudo kill -9 $(cat /home/ubuntu/app.pid) || true
+            rm /home/ubuntu/app.pid
           fi
-          sudo nohup java -jar /home/ubuntu/PriyanshuBranchGithub/ProductionManagement/target/ProductionManagement-0.0.1-SNAPSHOT.jar > /home/ubuntu/PriyanshuBranchGithub/app.log 2>&1 &
-          echo $! > /home/ubuntu/PriyanshuBranchGithub/app.pid
+          cd /home/ubuntu/your-spring-boot-app
+          sudo nohup java -jar target/your-app.jar > app.log 2>&1 &
+          echo $! > /home/ubuntu/app.pid
           EOF
