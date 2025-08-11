@@ -36,7 +36,10 @@ jobs:
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
           
+          # Remove old build
           ssh -i private_key.pem -o StrictHostKeyChecking=no $USER@$HOST "rm -rf $REACT_BUILD_DIR/*"
+          
+          # Copy new build
           scp -i private_key.pem -o StrictHostKeyChecking=no -r build/* $USER@$HOST:$REACT_BUILD_DIR
 
           # Restart Spring Boot app (optional)
