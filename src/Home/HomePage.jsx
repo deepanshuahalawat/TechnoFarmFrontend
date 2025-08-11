@@ -32,7 +32,6 @@ function HomePage() {
 
       <WhyChooseUs />
       <HelpSection />
-      {/* <PopularProducts /> */}
       <TestimonialSlider />
       <TeamComponent/>
       <Footer />

@@ -189,7 +189,7 @@ const products = [
         productTitle: "THREE PHASE INVERTER",
         productCategory: ["INVERTER", "Accessories"],
         productDescription: "This inverter gives pure sine wave phree phase output.Three phase inverter to test your three phase products. It can be operated from single phase 220 volt AC supply or from 24 volt DC.",
-        productPrice: 400,
+        productPrice: 10000,
         features: [
             "Three phase 450 volt output",
             "Voltage meter",
