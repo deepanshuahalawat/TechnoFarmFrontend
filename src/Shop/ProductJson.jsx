@@ -126,7 +126,7 @@ const products = [
         productTitle: "SUBMERSIBLE PANEL",
         productCategory: ["Digital panel", "Accessories"],
         productDescription: "This is a microprocessor based digital submersible panel. It will show voltage, ampere and time. It will protect your motor from overload.",
-        productPrice: 400,
+        productPrice: 1000,
         features: [
             "Overload protection",
             "Starting capacitor",
@@ -146,7 +146,7 @@ const products = [
         productTitle: "Automatic Submersible Panel",
         productCategory: ["Digital panel", "Accessories"],
         productDescription: "This is a microprocessor based digital submersible panel. It will start your motor when tank will go below low level. It will turn off the motor when tank will be full. It saves electricity and water.",
-        productPrice: 400,
+        productPrice: 1200,
         features: [
             "Turn off motor when tank overflows",
             "Turn on motor when tank is empty",
