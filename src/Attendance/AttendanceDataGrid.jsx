@@ -2,7 +2,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import { Box, Typography } from '@mui/material';
 
 const AttendanceDataGrid = ({
-  employees,
+
   filteredEmployees,
   monthDays,
   today,
@@ -120,7 +120,7 @@ const AttendanceDataGrid = ({
       '& .MuiDataGrid-columnHeaders': {
         position: 'sticky',
         top: 0,
-        zIndex: 3,
+        zIndex: 10  ,
         backgroundColor: '#f5f5f5',
       }
     }}>
@@ -142,13 +142,7 @@ const AttendanceDataGrid = ({
         }}
       />
       
-      {isMobile && (
-        <Box mt={2} p={2} bgcolor="warning.light" borderRadius={1}>
-          <Typography variant="body2" color="warning.contrastText">
-            Scroll horizontally to view more days. Showing first 7 days for mobile view.
-          </Typography>
-        </Box>
-      )}
+      
     </Box>
   );
 };

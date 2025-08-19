@@ -3,40 +3,16 @@ import AttendanceDetailsPanel from "./AttendanceDetailsPanel";
 import AttendanceDataGrid from "./AttendanceDataGrid";
 import Unauthorized from '../NotAuthorided';
 const AttendanceSystem = () => {
+  const currentDate = new Date();
+
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Get current month and year
-  const currentDate = new Date();
-
   const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth());
   const [today, setCurrentday] = useState(currentDate.getDate());
   const [dayName, setDayName] = useState(currentDate.toLocaleDateString('en-US', { weekday: 'long' }));
   const [currentYear, setCurrentYear] = useState(currentDate.getFullYear());
   const [currentdate, setCurrentdate] = useState(currentDate.toLocaleDateString());
-
-  // Initialize attendance data
-  const initializeAttendance = () => {
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    const attendanceData = {};
-
-    employees.forEach(employee => {
-      attendanceData[employee.id] = {};
-      for (let day = 1; day <= daysInMonth; day++) {
-        attendanceData[employee.id][day] = {
-          status: 'absent', // default status
-          checkIn: null,
-          checkOut: null,
-          hours: 0,
-          notes: ''
-        };
-      }
-    });
-
-    return attendanceData;
-  };
-
   const [attendance, setAttendance] = useState({});
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -45,12 +21,13 @@ const AttendanceSystem = () => {
   const [role, setRole] = useState();
 
   // Fetch employees from API
+  // Inside your component
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
         const token = localStorage.getItem('token');
-        const user = localStorage.getItem("user");
-        setRole(JSON.parse(user).role);
+        const user = JSON.parse(localStorage.getItem("user"));
+        setRole(user.role);
 
         const response = await fetch('https://technofarm.in/api/employee', {
           headers: {
@@ -58,11 +35,17 @@ const AttendanceSystem = () => {
             Accept: 'application/json',
           },
         });
-        if (!response.ok) {
-          throw new Error('Failed to fetch employees');
-        }
+        if (!response.ok) throw new Error('Failed to fetch employees');
         const data = await response.json();
-        setEmployees(data);
+
+        if (user.role === "DIRECTOR") {
+          setEmployees(data); // all employees
+        } else {
+          // only current user
+          const myData = data.filter(emp => emp.name === user.name);
+          setEmployees(myData);
+        }
+
         setLoading(false);
       } catch (err) {
         setError(err.message);
@@ -73,17 +56,10 @@ const AttendanceSystem = () => {
     fetchEmployees();
   }, []);
 
-
-
-
-  // Get all unique departments
-  const departments = ['all', ...new Set(employees.map(emp => emp.department))];
-
   // Filter employees based on search and department
   const filteredEmployees = employees.filter(employee => {
     const matchesSearch = employee.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDepartment = departmentFilter === 'all' || employee.department === departmentFilter;
-    return matchesSearch && matchesDepartment;
+    return matchesSearch;
   });
 
   // Handle month navigation
@@ -102,67 +78,6 @@ const AttendanceSystem = () => {
     setCurrentMonth(newMonth);
     setCurrentYear(newYear);
   };
-
-  // Handle attendance status change
-  const handleStatusChange = (employeeId, day, status) => {
-    setAttendance(prev => ({
-      ...prev,
-      [employeeId]: {
-        ...prev[employeeId],
-        [day]: {
-          ...prev[employeeId][day],
-          status: status,
-          checkIn: status === 'present' ? '09:00' : null,
-          checkOut: status === 'present' ? '17:00' : null,
-          hours: status === 'present' ? 8 : 0
-        }
-      }
-    }));
-  };
-
-  // Handle time change
-  const handleTimeChange = (employeeId, day, field, value) => {
-    setAttendance(prev => ({
-      ...prev,
-      [employeeId]: {
-        ...prev[employeeId],
-        [day]: {
-          ...prev[employeeId][day],
-          [field]: value,
-          hours: calculateHours(
-            field === 'checkIn' ? value : prev[employeeId][day].checkIn,
-            field === 'checkOut' ? value : prev[employeeId][day].checkOut
-          )
-        }
-      }
-    }));
-  };
-
-  // Add this new function to handle direct hours input
-  const handleHoursChange = (employeeId, day, hours) => {
-    setAttendance(prev => ({
-      ...prev,
-      [employeeId]: {
-        ...prev[employeeId],
-        [day]: {
-          ...prev[employeeId][day],
-          hours: parseFloat(hours) || 0
-        }
-      }
-    }));
-  };
-  // Calculate working hours
-  const calculateHours = (checkIn, checkOut) => {
-    if (!checkIn || !checkOut) return 0;
-
-    const [inHours, inMinutes] = checkIn.split(':').map(Number);
-    const [outHours, outMinutes] = checkOut.split(':').map(Number);
-
-    const totalMinutes = (outHours * 60 + outMinutes) - (inHours * 60 + inMinutes);
-    return Math.max(0, totalMinutes / 60).toFixed(2);
-  };
-
-
   // Get status color
   const getStatusColor = (status) => {
     switch (status) {
@@ -185,8 +100,9 @@ const AttendanceSystem = () => {
     try {
       const token = localStorage.getItem("token");
       const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-
+      const existingId = attendance[employeeId]?.[day]?.id;
       const payload = {
+        id: existingId || null,
         date: dateStr, // Use properly formatted date string
         employeeId: employeeId,
         hours: data.hours,
@@ -257,6 +173,7 @@ const AttendanceSystem = () => {
         }
 
         attendanceMap[record.employeeId][day] = {
+          id: record.id, // 🔑 store the id here
           status: record.late
             ? "late"
             : record.hours > 0
@@ -268,6 +185,7 @@ const AttendanceSystem = () => {
           notes: record.comment || "",
         };
       });
+
 
       setAttendance(attendanceMap);
     } catch (err) {
@@ -320,14 +238,10 @@ const AttendanceSystem = () => {
       </div>
     );
   }
-  if (role !=="DIRECTOR") {
-
-    return (
-      <div >
-        <Unauthorized />
-      </div>
-    );
+  if (!employees || employees.length === 0) {
+    return <div>No employees found</div>;
   }
+
   return (
     <div className="min-h-screen bg-gray-50 ">
       <div className=" mx-auto bg-white rounded-xl shadow-md overflow-hidden">
@@ -378,7 +292,7 @@ const AttendanceSystem = () => {
         {/* Attendance tables */}
 
         <AttendanceDataGrid
-          employees={employees}
+
           filteredEmployees={filteredEmployees}
           monthDays={monthDays}
           today={today}
